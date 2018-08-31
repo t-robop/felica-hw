@@ -3,58 +3,70 @@ import nfc
 import RPi.GPIO as GPIO
 import time
 
-PIN = [25,24,23,22,21,20]               #ラズパイのGPIOピンの番号
-GPIO.setmode(GPIO.BCM)                  #BCMモードのピンアサインを使用
+PIN = [25,24,23,22,21,20,19,18]     #25~20PIN is for tag, 19,18PIN is for LED
+GPIO.setmode(GPIO.BCM)
 GPIO.setup(PIN,GPIO.OUT)
 
 #wait NFC tag
 clf = nfc.ContactlessFrontend('usb')
 
 def outputting():
-    GPIO.output(PIN,(False,False,True,False,False,False))   #ここでどのピンに電流流すか決めてる(Trueで電流流す)
-                                                            #左から25,24,...,20になっている
-    if GPIO.input(25):
+    GPIO.output(PIN,(True,True,True,True,True,True,False,False))    #25~20PIN flow A
+
+    if GPIO.input(25) == 0:
         text = "a"
-    elif GPIO.input(24):
+        GPIO.output(19,True)        #Lighting LED
+    elif GPIO.input(24) == 0:
         text = "b"
-    elif GPIO.input(23):
+        GPIO.output(18,True)        #Lighting LED
+    elif GPIO.input(23) == 0:
         text = "c"
-    elif GPIO.input(22):
+    elif GPIO.input(22) == 0:
         text = "d"
-    elif GPIO.input(21):
+    elif GPIO.input(21) == 0:
         text = "e"
-    elif GPIO.input(20):
+    elif GPIO.input(20) == 0:
         text = "f"
+        GPIO.output(19,True)        #Lighting LED
     else:
         print "can't searching PIN"
         text = "error"
 
-    print "%s is writing" % text
-
-    GPIO.output(PIN,False)                                  #電流止める
-
+    print "%s is writing" % text    #display writing data
     return text
 
 def connected(tag):
-    print tag.ndef.message.pretty()
+    print tag.ndef.message.pretty() #display ntag's record
 
     adding = outputting()
 
-    if tag.ndef.records:                                    #2回目以降
+    if tag.ndef.records:            #after 2 counts
         for record in tag.ndef.records:
-            print record.text                               #recordの中のtextフィールドを表示(タイプはunicode)
-            nfc_tx = record.text.encode()                   #unicode -> str
-#            print type(nfc_tx)  デバッグ用
+            print record.text       #display ntag data
+            nfc_tx = record.text.encode()
+#            print type(nfc_tx)     *for debug*
             nfc_write_tx = nfc_tx + adding
-#            print "%s type= %s" % (nfc_write_tx,type(nfc_write_tx))  デバッグ用
-            record = nfc.ndef.TextRecord(nfc_write_tx)      #書き込むデータを指定
-            tag.ndef.message = nfc.ndef.Message(record)     #指定したデータを書き込み
-            print tag.ndef.message.pretty()                 #書き込んだデータを含んだレコード全体を表示
-    else:                                                   #初回書き込みの時
-        record = nfc.ndef.TextRecord(adding)
-        tag.ndef.message = nfc.ndef.Message(record)
-        print tag.ndef.message.pretty()
+#            print "%s type= %s" % (nfc_write_tx,type(nfc_write_tx))    *for debug*
+            if nfc_write_tx.find("error") >= 0:     #return error
+                print "Error: return exception"
+            else:
+                if len(set(list(nfc_write_tx))) == len(nfc_write_tx):   #not duplicate
+                    record = nfc.ndef.TextRecord(nfc_write_tx)
+                    tag.ndef.message = nfc.ndef.Message(record)         #write data to ntag
+                    print tag.ndef.message.pretty()
+                else:
+                    print "Error: Text data duplicate!!"
+    else:
+        if adding.find("error") >= 0:
+            print "Error: return exception"
+        else:
+            record = nfc.ndef.TextRecord(adding)
+            tag.ndef.message = nfc.ndef.Message(record)
+            print tag.ndef.message.pretty()
+
+    time.sleep(2)
+    GPIO.output(PIN,False)
 
 
 clf.connect(rdwr={'on-connect':connected})
-GPIO.cleanup()                                              #全てのピンを解除
+GPIO.cleanup()      #release GPIO
