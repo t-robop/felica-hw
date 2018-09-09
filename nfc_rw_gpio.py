@@ -83,7 +83,7 @@ try:
         clf.connect(rdwr={'on-connect':connected})
         GPIO.cleanup()              #release GPIO
         clf.close()                 #close nfc connection
-except KeyboardInterrupt:           #動かない!w
+except:      
     GPIO.cleanup()
     clf.close()
     print "prog is finish!"
