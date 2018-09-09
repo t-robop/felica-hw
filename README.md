@@ -7,6 +7,6 @@ tagかざす -> ピンごとに書き込むデータを決める -> tagのテキ
 # 使用機材
 - Raspberry Pi 3 Model B 1個
 - Pasori RC-S380 1個
-- LED 7個
+- LED 7個(フルカラーLED1個で検討中)
 - ブレッドボード 1個
 - ジャンパー線
