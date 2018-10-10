@@ -5,28 +5,22 @@ import time
 import sys
 import signal
 
-PIN = [26,25,24,23,22,21,20,19,18]     #25~20PIN is for tag, 26,19,18,17PIN is for LED
+PIN = [26,25,24,23,22,19,18]     #25~20PIN is for tag, 26,19,18,17PIN is for LED
 
 def outputting():
-    GPIO.output(PIN,(False,True,True,True,True,True,True,False,False,False))    #25~20PIN flow A
+    GPIO.output(PIN,(False,True,True,True,True,False,False,False))    #25~20PIN flow A
 
     if GPIO.input(25) == 0:
-        text = "a"
+        text = "s"
         GPIO.output(18,True)        #Lighting LED
     elif GPIO.input(24) == 0:
-        text = "b"
+        text = "t"
         GPIO.output(18,True)        #Lighting LED
     elif GPIO.input(23) == 0:
-        text = "c"
+        text = "u"
         GPIO.output(18,True)        #Lighting LED
     elif GPIO.input(22) == 0:
-        text = "d"
-        GPIO.output(18,True)        #Lighting LED
-    elif GPIO.input(21) == 0:
-        text = "e"
-        GPIO.output(18,True)        #Lighting LED
-    elif GPIO.input(20) == 0:
-        text = "f"
+        text = "v"
         GPIO.output(18,True)        #Lighting LED
     else:
         print "can't searching PIN"
@@ -45,14 +39,15 @@ def connected(tag):
             print record.text       #display ntag data
             nfc_tx = record.text.encode()
 #Debug            print type(nfc_tx)
-            nfc_write_tx = nfc_tx + adding
+
 #Debug            print "%s type= %s" % (nfc_write_tx,type(nfc_write_tx))
-            if nfc_write_tx.find("error") >= 0: #return error
+            if adding=="error": #return error
                 print "Error: return exception"
                 GPIO.output(18,False)       #power off LED
                 GPIO.output(19,True)        #Lighting Error LED
             else:
-                if len(set(list(nfc_write_tx))) == len(nfc_write_tx):   #not duplicate
+                if nfc_tx.find(adding) == -1:   #not duplicate
+                    nfc_write_tx = nfc_tx + adding
                     record = nfc.ndef.TextRecord(nfc_write_tx)
                     tag.ndef.message = nfc.ndef.Message(record)         #write data to ntag
                     print tag.ndef.message.pretty()
@@ -89,7 +84,7 @@ try:
 except:
     GPIO.output(19,True)
     time.sleep(1)
-    GPIO.output(19,False)      
+    GPIO.output(19,False)
     GPIO.cleanup()
     clf.close()
     print "prog is finish!"
