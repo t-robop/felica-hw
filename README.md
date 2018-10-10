@@ -36,4 +36,7 @@ Type=simple
 WantedBy=multi-user.target
 ```
 
-
+### 設定方法
+- 1 `sudo vi /lib/systemd/system/nfc.service`
+- 2 上記test.serviceを参考に設定を書く
+- 3 `sudo systemctl enable nfc.service`
