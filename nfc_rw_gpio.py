@@ -5,10 +5,10 @@ import time
 import sys
 import signal
 
-PIN = [25,24,23,22,21,20,19,18]     #25~20PIN is for tag, 19,18PIN is for LED
+PIN = [26,25,24,23,22,21,20,19,18]     #25~20PIN is for tag, 26,19,18,17PIN is for LED
 
 def outputting():
-    GPIO.output(PIN,(True,True,True,True,True,True,False,False))    #25~20PIN flow A
+    GPIO.output(PIN,(False,True,True,True,True,True,True,False,False,False))    #25~20PIN flow A
 
     if GPIO.input(25) == 0:
         text = "a"
@@ -59,7 +59,7 @@ def connected(tag):
                 else:
                     print "Error: Text data duplicate!!"
                     GPIO.output(18,False)   #power off LED
-                    GPIO.output(19,True)    #Lighting Error LED
+                    GPIO.output(17,True)    #Lighting Error LED
     else:
         if adding.find("error") >= 0:
             print "Error: return exception"
@@ -77,13 +77,19 @@ try:
     while 1:
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(PIN,GPIO.OUT)
+        GPIO.output(26,True)
+        time.sleep(1)
+        GPIO.output(26,False)
         #wait NFC tag
         print "nfc tag connected...."
         clf = nfc.ContactlessFrontend('usb')
         clf.connect(rdwr={'on-connect':connected})
         GPIO.cleanup()              #release GPIO
         clf.close()                 #close nfc connection
-except:      
+except:
+    GPIO.output(19,True)
+    time.sleep(1)
+    GPIO.output(19,False)      
     GPIO.cleanup()
     clf.close()
     print "prog is finish!"
