@@ -101,21 +101,19 @@ def led_start(state):
         GPIO.output(R_LED, True)
 
 
-def outputting():
-    GPIO.output(PIN, (False, True, True, True, True, False, False, False))  # 25~20PIN flow A
-
-    if GPIO.input(25) == 0:
+def output_str_select():
+    if GPIO.input(WRITE_PIN_S) == 0:
         text = "s"
-        GPIO.output(18, True)  # Lighting LED
-    elif GPIO.input(24) == 0:
+
+    elif GPIO.input(WRITE_PIN_T) == 0:
         text = "t"
-        GPIO.output(18, True)  # Lighting LED
-    elif GPIO.input(23) == 0:
+
+    elif GPIO.input(WRITE_PIN_U) == 0:
         text = "u"
-        GPIO.output(18, True)  # Lighting LED
-    elif GPIO.input(22) == 0:
+
+    elif GPIO.input(WRITE_PIN_V) == 0:
         text = "v"
-        GPIO.output(18, True)  # Lighting LED
+
     else:
         print "can't searching PIN"
         text = "error"
@@ -124,72 +122,47 @@ def outputting():
     return text
 
 
+def nfc_read(tag):
+    str = tag.ndef.message.pretty()
+    print(str)
+    return str
+
+
+def nfc_write(tag, write_str):
+    tag.ndef.message = nfc.ndef.Message(write_str)
+
+
 def connected(tag):
-    print tag.ndef.message.pretty()  # display ntag's record
+    led_start(ENUM_WRITING)
+    nfc_text = nfc_read
+    if G_output_text in nfc_text:
+        print("すでに書き込まれています")
+        led_start(ENUM_WRITE_DONE)
+        return
 
-    adding = outputting()
+    nfc_write(G_output_text)
 
-    if tag.ndef.records:  # after 2 counts
-        for record in tag.ndef.records:
-            print record.text  # display ntag data
-            nfc_tx = record.text.encode()
-            # Debug            print type(nfc_tx)
-
-            # Debug            print "%s type= %s" % (nfc_write_tx,type(nfc_write_tx))
-            if adding == "error":  # return error
-                print "Error: return exception"
-                GPIO.output(18, False)  # power off LED
-                GPIO.output(19, True)  # Lighting Error LED
-            else:
-                if nfc_tx.find(adding) == -1:  # not duplicate
-                    nfc_write_tx = nfc_tx + adding
-                    record = nfc.ndef.TextRecord(nfc_write_tx)
-                    tag.ndef.message = nfc.ndef.Message(record)  # write data to ntag
-                    print tag.ndef.message.pretty()
-                else:
-                    print "Error: Text data duplicate!!"
-                    GPIO.output(18, False)  # power off LED
-                    GPIO.output(17, True)  # Lighting Error LED
+    nfc_text = nfc_read
+    if G_output_text in nfc_text:
+        print("書き込み成功")
+        led_start(ENUM_WRITE_DONE)
+        return
     else:
-        if adding.find("error") >= 0:
-            print "Error: return exception"
-            GPIO.output(18, False)  # power off LED
-            GPIO.output(19, True)  # Lighting Error LED
-        else:
-            record = nfc.ndef.TextRecord(adding)
-            tag.ndef.message = nfc.ndef.Message(record)
-            print tag.ndef.message.pretty()
+        print("書き込み失敗")
+        led_start(ENUM_WRITE_ERROR)
+        return
 
-    time.sleep(2)
-    GPIO.output(PIN, False)
+
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(PIN, GPIO.OUT)
-while True:
-    led_start(ENUM_SYS_ERROR)
-    # time.sleep(2)
-    # GPIO.output(11, False)
-    # time.sleep(2)
+G_output_text = output_str_select
 
-#
-# try:
-#     while 1:
-#         GPIO.setmode(GPIO.BCM)
-#         GPIO.setup(PIN, GPIO.OUT)
-#         GPIO.output(26, True)
-#         time.sleep(1)
-#         GPIO.output(26, False)
-#         # wait NFC tag
-#         print "nfc tag connected...."
-#         clf = nfc.ContactlessFrontend('usb')
-#         clf.connect(rdwr={'on-connect': connected})
-#         GPIO.cleanup()  # release GPIO
-#         clf.close()  # close nfc connection
-# except:
-#     GPIO.output(19, True)
-#     time.sleep(1)
-#     GPIO.output(19, False)
-#     GPIO.cleanup()
-#     clf.close()
-#     print "prog is finish!"
-#     sys.exit(0)
+if "error" in G_output_text:
+    led_start(ENUM_SYS_ERROR)
+    sys.exit(1)
+
+while True:
+    clf = nfc.ContactlessFrontend('usb')
+    clf.connect(rdwr={'on-connect': connected})
+    clf.close()
