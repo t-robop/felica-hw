@@ -39,6 +39,9 @@ Type=simple
 WantedBy=multi-user.target
 ```
 
+Serviceに関してはudevとからめたunitの制御をしてあげないとうまく動かない。要確認。
+http://thinkami.hatenablog.com/entry/2015/06/25/064658
+
 ### 設定方法
 - 1 `sudo vi /lib/systemd/system/nfc.service`
 - 2 上記test.serviceを参考に設定を書く
