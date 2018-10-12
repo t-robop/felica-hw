@@ -1,3 +1,4 @@
+#coding: utf-8
 import nfc
 clf = nfc.ContactlessFrontend('usb')			#NFCtagがかざされるのを待つ
   
