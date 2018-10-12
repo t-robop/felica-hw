@@ -65,12 +65,32 @@ def led_start(state):
         GPIO.output(F_LED_R, False)
         GPIO.output(F_LED_B, False)
         GPIO.output(R_LED, False)
-        time.sleep(0.2)
+        time.sleep(0.1)
         GPIO.output(F_LED_G, False)
         GPIO.output(F_LED_R, False)
         GPIO.output(F_LED_B, False)
         GPIO.output(R_LED, False)
-        time.sleep(0.2)
+        time.sleep(0.1)
+        GPIO.output(F_LED_G, True)
+        GPIO.output(F_LED_R, False)
+        GPIO.output(F_LED_B, False)
+        GPIO.output(R_LED, False)
+        time.sleep(0.1)
+        GPIO.output(F_LED_G, False)
+        GPIO.output(F_LED_R, False)
+        GPIO.output(F_LED_B, False)
+        GPIO.output(R_LED, False)
+        time.sleep(0.1)
+        GPIO.output(F_LED_G, True)
+        GPIO.output(F_LED_R, False)
+        GPIO.output(F_LED_B, False)
+        GPIO.output(R_LED, False)
+        time.sleep(0.1)
+        GPIO.output(F_LED_G, False)
+        GPIO.output(F_LED_R, False)
+        GPIO.output(F_LED_B, False)
+        GPIO.output(R_LED, False)
+        time.sleep(0.1)
 
     elif state == ENUM_WRITE_DONE:
         print("書き込み終了")
@@ -82,6 +102,26 @@ def led_start(state):
 
     elif state == ENUM_WRITE_ERROR:
         print("書き込み失敗")
+        GPIO.output(F_LED_G, False)
+        GPIO.output(F_LED_R, True)
+        GPIO.output(F_LED_B, False)
+        GPIO.output(R_LED, False)
+        time.sleep(0.2)
+        GPIO.output(F_LED_G, False)
+        GPIO.output(F_LED_R, False)
+        GPIO.output(F_LED_B, False)
+        GPIO.output(R_LED, False)
+        time.sleep(0.2)
+        GPIO.output(F_LED_G, False)
+        GPIO.output(F_LED_R, True)
+        GPIO.output(F_LED_B, False)
+        GPIO.output(R_LED, False)
+        time.sleep(0.2)
+        GPIO.output(F_LED_G, False)
+        GPIO.output(F_LED_R, False)
+        GPIO.output(F_LED_B, False)
+        GPIO.output(R_LED, False)
+        time.sleep(0.2)
         GPIO.output(F_LED_G, False)
         GPIO.output(F_LED_R, True)
         GPIO.output(F_LED_B, False)
@@ -141,7 +181,7 @@ def connected(tag):
         led_start(ENUM_WRITE_DONE)
         return
 
-    nfc_write(tag,G_output_text)
+    nfc_write(tag, G_output_text)
 
     nfc_text = nfc_read(tag)
     if G_output_text in nfc_text:
@@ -152,7 +192,6 @@ def connected(tag):
         print("書き込み失敗")
         led_start(ENUM_WRITE_ERROR)
         return
-
 
 
 GPIO.setmode(GPIO.BCM)
@@ -168,4 +207,4 @@ clf = nfc.ContactlessFrontend('usb')
 # while True:
 clf.connect(rdwr={'on-connect': connected})
 led_start(ENUM_WRITE_OK)
-#clf.close()
+# clf.close()
