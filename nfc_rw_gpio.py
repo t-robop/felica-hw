@@ -199,7 +199,7 @@ def connected(tag):
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(PIN, GPIO.OUT)
-GPIO.setup(INPUT_PIN, GPIO.IN)
+GPIO.setup(INPUT_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 G_output_text = output_str_select()
 
 if "error" in G_output_text:
