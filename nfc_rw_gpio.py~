@@ -166,7 +166,8 @@ def connected(tag):
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(PIN, GPIO.OUT)
 while True:
-    led_start(ENUM_SYS_ERROR)
+    #led_start(ENUM_WRITE_ERROR)
+    GPIO.output(R_LED, True)
     # time.sleep(2)
     # GPIO.output(11, False)
     # time.sleep(2)
