@@ -129,20 +129,21 @@ def nfc_read(tag):
 
 
 def nfc_write(tag, write_str):
-    tag.ndef.message = nfc.ndef.Message(write_str)
+    convert_str = nfc.ndef.TextRecord(write_str)
+    tag.ndef.message = nfc.ndef.Message(convert_str)
 
 
 def connected(tag):
     led_start(ENUM_WRITING)
-    nfc_text = nfc_read
+    nfc_text = nfc_read(tag)
     if G_output_text in nfc_text:
         print("すでに書き込まれています")
         led_start(ENUM_WRITE_DONE)
         return
 
-    nfc_write(G_output_text)
+    nfc_write(tag,G_output_text)
 
-    nfc_text = nfc_read
+    nfc_text = nfc_read(tag)
     if G_output_text in nfc_text:
         print("書き込み成功")
         led_start(ENUM_WRITE_DONE)
@@ -156,13 +157,15 @@ def connected(tag):
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(PIN, GPIO.OUT)
-G_output_text = output_str_select
+G_output_text = output_str_select()
 
 if "error" in G_output_text:
     led_start(ENUM_SYS_ERROR)
     sys.exit(1)
 
-while True:
-    clf = nfc.ContactlessFrontend('usb')
-    clf.connect(rdwr={'on-connect': connected})
-    clf.close()
+clf = nfc.ContactlessFrontend('usb')
+
+# while True:
+clf.connect(rdwr={'on-connect': connected})
+led_start(ENUM_WRITE_OK)
+#clf.close()
