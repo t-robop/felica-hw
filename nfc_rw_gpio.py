@@ -38,9 +38,6 @@ def connected(tag):
         for record in tag.ndef.records:
             print record.text       #display ntag data
             nfc_tx = record.text.encode()
-#Debug            print type(nfc_tx)
-
-#Debug            print "%s type= %s" % (nfc_write_tx,type(nfc_write_tx))
             if adding=="error": #return error
                 print "Error: return exception"
                 GPIO.output(18,False)       #power off LED
@@ -86,6 +83,5 @@ except:
     time.sleep(1)
     GPIO.output(19,False)
     GPIO.cleanup()
-    clf.close()
     print "prog is finish!"
     sys.exit(0)
