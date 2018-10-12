@@ -7,8 +7,8 @@ import time
 import sys
 import signal
 
-PIN = [26, 19, 13, 6, 17, 27, 22, 18]  # 25~20PIN is for tag, 26,19,18,17PIN is for LED
-
+PIN = [17, 27, 22, 18]  # 25~20PIN is for tag, 26,19,18,17PIN is for LED
+INPUT_PIN = [26, 19, 13, 6]
 # 書き込み文字判別用
 WRITE_PIN_S = 26
 WRITE_PIN_T = 19
@@ -163,13 +163,16 @@ def output_str_select():
 
 
 def nfc_read(tag):
-    str = tag.ndef.message.pretty()
+    str = ""
+    for record in tag.ndef.records:
+        str = record.text
     print(str)
     return str
 
 
 def nfc_write(tag, write_str):
-    convert_str = nfc.ndef.TextRecord(write_str)
+    read_nfc_str = nfc_read(tag)
+    convert_str = nfc.ndef.TextRecord(write_str + read_nfc_str)
     tag.ndef.message = nfc.ndef.Message(convert_str)
 
 
@@ -196,6 +199,7 @@ def connected(tag):
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(PIN, GPIO.OUT)
+GPIO.setup(INPUT_PIN, GPIO.IN)
 G_output_text = output_str_select()
 
 if "error" in G_output_text:
