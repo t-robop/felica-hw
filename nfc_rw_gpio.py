@@ -205,7 +205,7 @@ G_output_text = output_str_select()
 if "error" in G_output_text:
     led_start(ENUM_SYS_ERROR)
     sys.exit(1)
-
+led_start(ENUM_WRITE_OK)
 clf = nfc.ContactlessFrontend('usb')
 
 # while True:
